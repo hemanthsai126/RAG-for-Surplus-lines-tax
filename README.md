@@ -101,6 +101,3 @@ SKIP_LLM=1 python -m app.eval.run_eval --benchmark benchmarks/qa_sample.json
 
 ---
 
-## License
-
-Use and modify for your own deployment; add a `LICENSE` file if you redistribute.
