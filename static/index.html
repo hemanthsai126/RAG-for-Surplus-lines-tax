@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="light" />
+    <title>Insurance RAG</title>
+    <link rel="stylesheet" href="/assets/style.css?v=6" />
+  </head>
+  <body>
+    <div class="app">
+      <div class="main-stack">
+        <header class="top">
+          <div class="brand">
+            <span class="logo">◆</span>
+            <div>
+              <h1>Insurance RAG</h1>
+              <p class="sub">Grounded answers from your policy PDFs</p>
+            </div>
+          </div>
+          <div class="actions">
+            <span id="status" class="pill muted">Checking index…</span>
+            <button type="button" id="ingestBtn" class="btn secondary">Re-index PDFs</button>
+          </div>
+        </header>
+
+        <main class="chat" id="chat" aria-label="Chat messages"></main>
+      </div>
+    </div>
+
+    <!-- Fixed bottom: scroll FAB (center) + composer — always visible -->
+    <div class="bottom-dock" id="bottomDock">
+      <button
+        type="button"
+        id="scrollDownBtn"
+        class="scroll-down-fab"
+        aria-label="Scroll to latest messages"
+        title="Scroll to bottom"
+      >
+        <span class="scroll-down-fab__icon" aria-hidden="true">↓</span>
+      </button>
+      <footer class="composer">
+        <textarea
+          id="input"
+          rows="1"
+          placeholder="Ask about coverage, exclusions, premiums, claims…"
+          autocomplete="off"
+        ></textarea>
+        <button type="button" id="sendBtn" class="btn primary">Send</button>
+      </footer>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/marked@12.0.0/marked.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.8/dist/purify.min.js" crossorigin="anonymous"></script>
+    <script src="/assets/app.js?v=6" type="module"></script>
+  </body>
+</html>

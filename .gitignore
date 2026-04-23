@@ -1,0 +1,11 @@
+.env
+.DS_Store
+# Large multi-state statute corpus (~400MB+); use HF dataset or local copy for ingest.
+ins_ipynb/data/
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+data/vectorstore/
+*.egg-info/

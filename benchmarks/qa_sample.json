@@ -1,0 +1,14 @@
+[
+  {
+    "id": "example_1",
+    "question": "What is the policy deductible mentioned in the documents?",
+    "retrieval_must_contain": ["deductible"],
+    "answer_must_mention": ["deductible"]
+  },
+  {
+    "id": "example_2",
+    "question": "Summarize coverage limits in a markdown table.",
+    "retrieval_must_contain": ["coverage"],
+    "answer_must_mention": []
+  }
+]

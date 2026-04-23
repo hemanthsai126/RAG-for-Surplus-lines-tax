@@ -1,0 +1,1 @@
+State insurance markdown lives under ins_ipynb/data/ locally. That tree is not in Git (size / GitHub push limits). Copy your corpus here or ingest from another path via PDFS_DIRS.

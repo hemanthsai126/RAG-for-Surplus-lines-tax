@@ -1,0 +1,33 @@
+# Python / tooling
+.venv
+venv
+__pycache__
+*.py[cod]
+*.egg-info
+.pytest_cache
+.ruff_cache
+.mypy_cache
+
+# VCS / IDE
+.git
+.gitignore
+.cursor
+*.swp
+*.swo
+
+# Large or runtime-only (rebuild index in CI or download via HF_VECTORSTORE_REPO)
+ins_ipynb/data
+webpage_pdfs
+data/pdfs
+data/vectorstore
+
+# Optional large trees — uncomment if you keep statutes only on Hub
+# data
+
+# Tests / docs (not needed to serve)
+tests
+benchmarks
+docs
+
+# Notebooks outputs (optional)
+ins_ipynb/**/*.ipynb_checkpoints

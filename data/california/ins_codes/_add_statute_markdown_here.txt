@@ -1,0 +1,2 @@
+Add .md or .txt excerpts from this state's official insurance code.
+Then run:  python3 -m app.ingest

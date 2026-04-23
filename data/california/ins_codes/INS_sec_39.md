@@ -1,0 +1,12 @@
+# California Insurance Code (INS) — Section 39
+
+**Official source:** https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=INS&sectionNum=39.
+
+---
+
+Insurance Code - INS
+GENERAL PROVISIONS
+( General Provisions enacted by Stats. 1935, Ch. 145. )
+39.
+If any provision of this code, or the application thereof to any person or circumstance, is held invalid, the remainder of the code, or the application of such provision to other persons or circumstances, shall not be affected thereby.
+(Enacted by Stats. 1935, Ch. 145.)
