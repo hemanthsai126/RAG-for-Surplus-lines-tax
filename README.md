@@ -6,6 +6,30 @@ Retrieval-augmented Q&A over **insurance PDFs**, **regulator materials**, and **
 
 ---
 
+## UI examples
+
+The chat UI shows **live index status** (chunk count), a **Re-index** control, and **streaming Markdown** answers. Below are three real interactions: two grounded in **Virginia insurance code** retrieval, and one that blends **indexed PDFs** with general reasoning for a hypothetical premium question.
+
+### Virginia: adverse underwriting decisions
+
+The user asks about **information concerning previous adverse underwriting decisions** in Virginia. The model returns a structured answer tied to **Code of Virginia Title 38.2**, highlighting **§ 38.2-611** (limitations on using prior adverse history) and **§ 38.2-610** (notice and reasons), with links to the official code. This illustrates **statute-centric RAG**: dense + lexical search over `ins_codes` markdown, then generation with citations drawn from chunk text.
+
+![Virginia chat: adverse underwriting and Code of Virginia 38.2-610 / 38.2-611](docs/ui-virginia-adverse-underwriting.png)
+
+### San Francisco: “least I’d pay per month” for a bay-area home
+
+Here the question is intentionally **broad and hypothetical** (coverage mix, earthquake risk, deductibles). The reply outlines **coverage components**, **earthquake** cost drivers, and a **worked numeric example** (insured value, limit, deductible, PML-style factors). The header shows a **large chunk count** (hundreds of thousands of indexed passages), reflecting a full corpus plus PDFs. Use this as an example of **long-form, educational answers**; always validate numbers against your own policy and insurer.
+
+![San Francisco homeowners / earthquake premium example](docs/ui-san-francisco-premiums.png)
+
+### Virginia: Modified Guaranteed Life (§ 38.2-105.1)
+
+The assistant answers on **Modified Guaranteed Life Insurance** under **Virginia Code § 38.2-105.1**, with sections on definitions, benefit guarantees, market-value adjustments, placement in Title 38.2, and a **disclaimer plus official source** link. The small **§ 38.2-105.1** tag in the thread mirrors how the UI surfaces statute-grounded replies.
+
+![Virginia Modified Guaranteed Life § 38.2-105.1](docs/ui-virginia-modified-guaranteed-life.png)
+
+---
+
 ## Features
 
 - **Hybrid search** — lexical BM25 and dense embeddings (`sentence-transformers`), fused with reciprocal rank fusion (RRF).
