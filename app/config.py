@@ -74,6 +74,10 @@ class Settings(BaseSettings):
     # If true, block questions that lack insurance-related keywords (see app/guards/domain.py).
     strict_domain_guard: bool = False
 
+    # If true (default), chat uses the **Risko** system prompt (Zprojects-style insurance persona + RAG rules).
+    # Set USE_RISKO=false to use the legacy generic insurance assistant opener only.
+    use_risko_persona: bool = Field(default=True, validation_alias="USE_RISKO")
+
     @computed_field
     @property
     def pdfs_dirs(self) -> list[Path]:

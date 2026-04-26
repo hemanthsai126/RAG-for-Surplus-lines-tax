@@ -4,6 +4,14 @@
 
 Retrieval-augmented Q&A over **insurance PDFs**, **regulator materials**, and **state statute excerpts** (Markdown). The stack is **FastAPI** + a static chat UI, **hybrid retrieval** (BM25 + FAISS with RRF fusion), **cross-encoder reranking**, and answers streamed from **Ollama** or any **OpenAI-compatible** API.
 
+This repo also ships the **P&C Copilot** backend from **`Zprojects`** (`app/copilot/`): NAICS lookup, XGBoost + SHAP risk scoring, policy TF-IDF extraction, quote-compare forwarding, PDF upload, and an optional **`POST /api/risko/chat`** endpoint (LLM-only, no vector index — same env pattern as Zprojects: `RISKO_LLM_BACKEND`, Ollama or OpenAI).
+
+**Risko in the web UI** is the **document RAG** experience: one page uses **`POST /api/chat/stream`** (hybrid retrieve → rerank → stream). System prompt can include the Risko persona when **`USE_RISKO=true`** (default). The **`/api/risko/chat`** route remains for scripts or integrations that want chat **without** retrieval.
+
+**`GET /api/health`** includes index fields plus **`persona`** / **`use_risko`** and a **`copilot`** map of the extra API routes.
+
+**Interview / architecture deep dive:** For an end-to-end technical walk-through (ingest, hybrid RRF, reranking, prompts, Risko persona, Copilot, frontend, Docker/HF, trade-offs, and likely Q&A), see **`docs/INTERVIEW_PREP.md`**.
+
 ---
 
 ## UI examples
@@ -37,6 +45,7 @@ The assistant answers on **Modified Guaranteed Life Insurance** under **Virginia
 - **Grounded answers** — retrieved passages carry statute **Source / Verify** metadata where present; the system prompt steers citation behavior.
 - **Ingest** — recursive indexing of `.pdf`, `.md`, `.txt` under configurable roots; writes `chunks.json`, `faiss.index`, `bm25.pkl`, `embedder.txt` (default: `data/vectorstore/`).
 - **UI** — dark-themed single page: health check, re-index, streaming chat with Markdown (Marked + DOMPurify).
+- **P&C Copilot** — NAICS resolution, business risk + SHAP, coverage gaps vs uploaded policy text, optional quote API, optional **`/api/risko/chat`** (LLM-only), policy PDF text extraction (`app/copilot/`).
 
 ---
 
@@ -57,7 +66,19 @@ python -m app.ingest          # build the index
 uvicorn app.main:app --reload --host 127.0.0.1 --port 8001
 ```
 
-Open **http://127.0.0.1:8001/** . Use **Re-index** or `POST /api/ingest` after changing documents.
+Open **http://127.0.0.1:8001/** after `cd frontend && npm install && npm run build` (FastAPI then serves the **React** app at `/` and client routes such as `/risko`). For local development with hot reload, run the API on **8001** and in a second terminal:
+
+```bash
+cd frontend && npm install && npm run dev
+```
+
+Then open **http://127.0.0.1:5173** — Vite proxies `/api` to port **8001** (`VITE_API_PORT` in `frontend/.env`).
+
+**Pages:** **Copilot** (`/`) — risk & policy analyze · **Compare quotes** · **Risko** (`/risko`) — indexed-document chat (re-index + `POST /api/chat/stream`) · **About**.
+
+Legacy static files remain under **`/assets/`** (old single-page UI) if you still need them.
+
+Use **Re-index** on the Risko page or `POST /api/ingest` after changing documents.
 
 **LLM:** run [Ollama](https://ollama.com/) locally and align **`OLLAMA_MODEL`** with `ollama list`, **or** set **`OPENAI_BASE_URL`** and **`OPENAI_MODEL`** (and **`OPENAI_API_KEY`** if required) for a cloud / vLLM endpoint.
 
@@ -98,6 +119,7 @@ Generated index files live under **`data/vectorstore/`** and are **gitignored**;
 | **`OLLAMA_BASE_URL`**, **`OLLAMA_MODEL`**, **`OLLAMA_TIMEOUT_S`** | Ollama defaults. |
 | **`OPENAI_BASE_URL`**, **`OPENAI_MODEL`**, **`OPENAI_API_KEY`** | OpenAI-compatible chat when base URL and model are both set. |
 | **`STRICT_DOMAIN_GUARD`** | If `true`, optional insurance-domain gate before retrieval. |
+| **`USE_RISKO`** | If `true` (default), system prompt uses **Risko** + RAG rules; if `false`, legacy opener only. |
 | **`RETRIEVAL_PATH_BONUS_SUBSTRINGS`**, **`RETRIEVAL_PATH_RRF_BONUS`** | Nudge retrieval toward paths containing substrings (e.g. `ins_codes`). |
 
 Full semantics and defaults: **`app/config.py`**.
@@ -106,13 +128,28 @@ Full semantics and defaults: **`app/config.py`**.
 
 ## HTTP API
 
+### Insurance RAG
+
 | Method | Path | Description |
 |--------|------|-------------|
 | GET | `/` | Web UI |
-| GET | `/api/health` | Index status, chunk count, paths |
+| GET | `/api/health` | Index status, chunk count, paths, `copilot` route map |
 | POST | `/api/ingest` | Rebuild index from configured directories |
-| POST | `/api/chat/stream` | SSE chat: `{ "message", "history" }` |
+| POST | `/api/chat/stream` | SSE RAG chat: `{ "message", "history" }` |
 | GET | `/api/context_preview?q=…` | Retrieval debug (no LLM) |
+
+### P&C Copilot (Zprojects)
+
+| Method | Path | Description |
+|--------|------|-------------|
+| GET | `/api/naics/lookup?code=` | NAICS → 2012 industry title |
+| POST | `/api/analyze` | JSON body: business profile + optional policy text |
+| POST | `/api/analyze-upload` | Multipart form + optional policy PDF |
+| POST | `/api/quotes/compare` | Forward to `INSURANCE_QUOTES_API_URL` when set (else mock) |
+| POST | `/api/upload-policy` | PDF → extracted text (max 15MB) |
+| POST | `/api/risko/chat` | Optional LLM-only chat (no vector index); the **Risko** UI uses `/api/chat/stream` instead |
+
+Copilot env vars match Zprojects (e.g. **`INSURANCE_QUOTES_API_URL`**, **`RISKO_LLM_BACKEND`**, **`OPENAI_CHAT_COMPLETIONS_URL`** for Risko’s OpenAI path). Risk model trains a cached **`risk_xgb.joblib`** under `app/copilot/data/` on first use if none exists.
 
 ---
 

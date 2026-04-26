@@ -20,6 +20,13 @@ sentence-transformers>=3.0.0
 torch>=2.1.0
 numpy>=1.26.0
 
+# P&C Copilot (Zprojects port: NAICS, XGBoost+SHAP, quote API, Risko chat)
+pandas>=2.0.0
+scikit-learn>=1.4.0
+xgboost>=2.0.0
+shap>=0.44.0
+joblib>=1.3.0
+
 # Dev / CI
 pytest>=8.0.0
 pytest-asyncio>=0.23.0

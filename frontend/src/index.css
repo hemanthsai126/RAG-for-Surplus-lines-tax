@@ -1,0 +1,29 @@
+@import "tailwindcss";
+@plugin "@tailwindcss/typography";
+
+@theme {
+  --font-sans: "DM Sans", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+  --color-surface-950: #f1f5f9;
+  --color-surface-900: #ffffff;
+  --color-surface-850: #f8fafc;
+  --color-surface-800: #e2e8f0;
+  --color-accent: #0d9488;
+  --color-accent-dim: #ccfbf1;
+  --color-warn: #d97706;
+  --color-danger: #dc2626;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  color-scheme: light;
+  background: linear-gradient(165deg, #ffffff 0%, #f8fafc 45%, #f1f5f9 100%);
+  color: #0f172a;
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection {
+  background: color-mix(in oklab, var(--color-accent) 28%, transparent);
+}

@@ -8,4 +8,7 @@ __pycache__/
 .pytest_cache/
 .ruff_cache/
 data/vectorstore/
+app/copilot/data/risk_xgb.joblib
 *.egg-info/
+frontend/node_modules/
+frontend/dist/

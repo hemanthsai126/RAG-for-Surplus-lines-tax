@@ -1,0 +1,23 @@
+COMMERCIAL PACKAGE POLICY — SAMPLE (SYNTHETIC FOR DEMO)
+Named Insured: Demo Bistro LLC | Location: ZIP 94102
+
+COVERAGE A — GENERAL LIABILITY
+Each Occurrence Limit: $1,000,000
+Personal & Advertising Injury: $1,000,000
+General Aggregate: $2,000,000
+
+COVERAGE B — COMMERCIAL PROPERTY
+Building Limit: $350,000
+Business Personal Property: $75,000
+Causes of Loss: Special Form
+Deductible: $2,500 per occurrence
+
+EXCLUSIONS
+Flood damage is excluded unless Flood Coverage is endorsed.
+Earth movement is excluded except as provided by endorsement.
+
+BUSINESS INTERRUPTION
+Business Income and Extra Expense: Not included unless endorsed.
+
+CYBER LIABILITY
+Network Security and Privacy Liability: Not included.

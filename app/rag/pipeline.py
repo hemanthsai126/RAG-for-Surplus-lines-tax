@@ -13,6 +13,7 @@ from app.guards.domain import is_insurance_domain
 from app.retrieval.hybrid import hybrid_retrieve
 from app.retrieval.reranker import rerank
 from app.rag.prompts import SYSTEM_INSURANCE_RAG, build_user_message, domain_rejection_message
+from app.rag.risko import SYSTEM_RISKO_RAG
 from app.store import VectorStore
 
 
@@ -148,7 +149,8 @@ async def stream_answer(
 
     _meta, blocks = retrieve_and_pack_context(store, query)
     user_msg = build_user_message(query, blocks)
-    messages: list[dict[str, str]] = [{"role": "system", "content": SYSTEM_INSURANCE_RAG}]
+    system_content = SYSTEM_RISKO_RAG if settings.use_risko_persona else SYSTEM_INSURANCE_RAG
+    messages: list[dict[str, str]] = [{"role": "system", "content": system_content}]
     for m in history[-6:]:
         if m.get("role") in ("user", "assistant") and m.get("content"):
             messages.append({"role": m["role"], "content": m["content"]})
