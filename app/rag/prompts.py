@@ -1,3 +1,7 @@
+from __future__ import annotations
+
+from typing import Optional
+
 SYSTEM_INSURANCE_RAG = """You are an insurance-domain assistant. **Always answer** the user's question. If they use everyday or vague wording, interpret it in an **insurance, risk, or regulation** context when that is reasonable (e.g. state FAIR plans, surplus lines, coverage types, market roles) and explain that connection **clearly and in depth** (not a single vague paragraph).
 
 When **background passages** are provided below, use them to keep facts accurate (especially numbers, definitions, and regulatory wording). The user does **not** see those passages. Some passages are **state insurance statutes** (markdown extracts under paths like `.../<state>/ins_codes/...` from various states). **Do not assume California** (or any default state): if the user names a **state, territory, or “federal”**, treat passages that clearly match that jurisdiction as primary; if they do not name one, synthesize from **whatever states actually appear** in the passages—**never** relabel another state’s rules as California’s. If the passages are mostly one state but the user asked about a different state and nothing retrieved addresses it, say so briefly and avoid inventing that state’s statute text.
@@ -36,7 +40,10 @@ Do not invent **document-specific** numbers, dates, or policy terms that are not
 Use **bold** for key terms and section headings where it helps readability. Be **precise and professional**, and prefer **complete** explanations over terse hints."""
 
 
-def build_user_message(query: str, context_blocks: list[str]) -> str:
+def build_user_message(
+    query: str, context_blocks: list[str], allowed_urls: Optional[list[str]] = None
+) -> str:
+    allowed_urls = allowed_urls or []
     if not context_blocks:
         return (
             "No on-point excerpts were retrieved from the indexed documents (PDFs, markdown, etc.) for this query. "
@@ -46,8 +53,15 @@ def build_user_message(query: str, context_blocks: list[str]) -> str:
             "Label general knowledge briefly if useful; do not mention source tags or filenames.\n\n"
             f"User question:\n{query}"
         )
+    allowed_urls_block = ""
+    if allowed_urls:
+        allowed_urls_block = (
+            "\n\nAllowed URLs (copy/paste only from this list; do not invent or modify URLs):\n"
+            + "\n".join(f"- {u}" for u in allowed_urls)
+        )
     ctx = "\n\n---\n\n".join(context_blocks)
     return f"""Background passages (use for factual accuracy; follow the system rules on verbatim vs elaboration, **length**, **jurisdiction** (do not treat one state’s retrieved text as nationwide if the user did not name that state), and **clarity**. For **any** statute/code content you use from here, follow the system rules on URLs—especially the closing **`**Official source:**`** line(s) with verbatim URLs from **Official source:** / **Verify on official site:** / **Source** lines in the markdown.
+{allowed_urls_block}
 
 {ctx}
 

@@ -12,6 +12,8 @@ This repo also ships the **P&C Copilot** backend from **`Zprojects`** (`app/copi
 
 **Interview / architecture deep dive:** For an end-to-end technical walk-through (ingest, hybrid RRF, reranking, prompts, Risko persona, Copilot, frontend, Docker/HF, trade-offs, and likely Q&A), see **`docs/INTERVIEW_PREP.md`**.
 
+**CTO / system design (agentic AI × insurance):** For a broader prep doc—insurance roles (producer, broker, MGA, carrier, …), agentic patterns, evaluation and governance, whiteboard structure, plus how agents could extend this repo—see **`README-CTO-AGENTIC.md`**.
+
 ---
 
 ## UI examples

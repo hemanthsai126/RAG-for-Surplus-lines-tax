@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import re
 from collections.abc import AsyncIterator
 from typing import Any
 
@@ -31,6 +32,45 @@ def retrieve_and_pack_context(store: VectorStore, query: str) -> tuple[list[dict
         blocks.append(ch["text"])
         selected.append({"rank": rank, **ch})
     return selected, blocks
+
+
+_URL_RE = re.compile(r"https?://[^\s)\]}>\"']+")
+
+
+def _extract_urls_from_blocks(blocks: list[str]) -> list[str]:
+    """Extract unique URLs in order of first appearance."""
+    seen: set[str] = set()
+    out: list[str] = []
+    for b in blocks:
+        for u in _URL_RE.findall(b or ""):
+            if u not in seen:
+                seen.add(u)
+                out.append(u)
+    return out
+
+
+def _sanitize_answer_urls(answer: str, allowed_urls: list[str]) -> tuple[str, int]:
+    """
+    Remove/neutralize any URLs in the model answer that are not present in `allowed_urls`.
+    Returns (sanitized_answer, removed_count).
+    """
+    if not answer:
+        return answer, 0
+    if not allowed_urls:
+        # If we have no allowlist, do not attempt to rewrite; rely on prompt rules.
+        return answer, 0
+    allowed = set(allowed_urls)
+    removed = 0
+
+    def repl(m: re.Match[str]) -> str:
+        nonlocal removed
+        u = m.group(0)
+        if u in allowed:
+            return u
+        removed += 1
+        return "[link removed: not present in indexed sources]"
+
+    return _URL_RE.sub(repl, answer), removed
 
 
 def _ollama_troubleshoot_hint() -> str:
@@ -148,7 +188,8 @@ async def stream_answer(
         return
 
     _meta, blocks = retrieve_and_pack_context(store, query)
-    user_msg = build_user_message(query, blocks)
+    allowed_urls = _extract_urls_from_blocks(blocks)
+    user_msg = build_user_message(query, blocks, allowed_urls=allowed_urls)
     system_content = SYSTEM_RISKO_RAG if settings.use_risko_persona else SYSTEM_INSURANCE_RAG
     messages: list[dict[str, str]] = [{"role": "system", "content": system_content}]
     for m in history[-6:]:
@@ -156,9 +197,25 @@ async def stream_answer(
             messages.append({"role": m["role"], "content": m["content"]})
     messages.append({"role": "user", "content": user_msg})
 
+    # Collect full answer then sanitize URLs against retrieved allowlist.
+    # This prevents the UI from showing invented "official links" that are not present in the indexed sources.
+    parts: list[str] = []
     if settings.openai_base_url and settings.openai_model:
         async for piece in stream_openai_compatible(messages):
-            yield piece
+            parts.append(piece)
     else:
         async for piece in stream_ollama(messages):
-            yield piece
+            parts.append(piece)
+    answer = "".join(parts)
+    answer, removed = _sanitize_answer_urls(answer, allowed_urls)
+    if removed:
+        answer = (
+            answer.rstrip()
+            + "\n\n"
+            + f"(Note: removed {removed} link(s) that were not present in the retrieved indexed excerpts.)"
+        )
+
+    # Emit in chunks to preserve SSE UX.
+    chunk_size = 240
+    for i in range(0, len(answer), chunk_size):
+        yield answer[i : i + chunk_size]
